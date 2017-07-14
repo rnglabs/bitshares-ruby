@@ -5,6 +5,7 @@ require 'uri'
 require 'net/http'
 require 'yaml'
 
+require 'bitshares/rpc'
 require 'bitshares/client'
 require 'bitshares/blockchain'
 require 'bitshares/wallet'
@@ -12,13 +13,13 @@ require 'bitshares/account'
 require 'bitshares/market'
 require 'bitshares/trader'
 
-CLIENT = Bitshares::Client
+CLIENT = Bitshares::Client.new
 CHAIN = Bitshares::Blockchain
 
 # stackoverflow.com/questions/6233124/where-to-place-access-config-file-in-gem
 module Bitshares
 
-  @config = {rpc_username: nil, rpc_password: nil,
+  @config = {rpc_username: nil, rpc_password: nil, rpc_server: nil,
              :wallet => {nil => nil}} # name/password key/value pairs
 
   @valid_keys = @config.keys
@@ -37,6 +38,9 @@ module Bitshares
       puts 'YAML configuration file contains invalid syntax. Using defaults'
       return
     end
+
+    config[:rpc_username] = ENV['BITSHARES_ACCOUNT'] || config[:rpc_username]
+    config[:rpc_password] = ENV['BITSHARES_PASSWORD'] || config[:rpc_password]
 
     configure(config)
   end

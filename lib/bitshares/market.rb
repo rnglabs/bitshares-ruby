@@ -4,10 +4,11 @@ module Bitshares
 
     class Error < RuntimeError; end
 
+    include RPC
+
     attr_reader :quote, :base
 
     def initialize(quote, base)
-      [quote, base].each &:upcase!
       @quote_hash, @base_hash = asset(quote), asset(base)
       @quote, @base = @quote_hash['symbol'], @base_hash['symbol']
       valid_market?(@quote_hash['id'], @base_hash['id'])
@@ -42,13 +43,18 @@ module Bitshares
       CLIENT.request('blockchain_market_get_asset_collateral', [quote])
     end
 
-    def method_missing(m, *args)
-      CLIENT.request('blockchain_market_' + m.to_s, [quote, base] + args)
+    def self.method_prefix
+      'blockchain_market_'
+    end
+
+    def default_args
+      [quote, base]
     end
 
     private
 
     def asset(symbol) # returns hash
+      symbol.upcase!
       CHAIN.get_asset(symbol) || (raise Error, "Invalid asset: #{symbol}")
     end
 

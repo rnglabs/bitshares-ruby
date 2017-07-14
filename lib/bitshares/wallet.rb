@@ -4,6 +4,8 @@ module Bitshares
 
     attr_reader :name, :account
 
+    include RPC
+
     def initialize(name)
       @name = name
       @account = nil
@@ -45,8 +47,8 @@ module Bitshares
       !unlocked?
     end
 
-    def method_missing(m, *args)
-      CLIENT.request('wallet_' + m.to_s, args)
+    def method_prefix
+      'wallet_'
     end
 
   end

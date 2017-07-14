@@ -1,9 +1,10 @@
 module Bitshares
 
   class Blockchain
+    include RPC
 
-    def self.method_missing(name, *args)
-      CLIENT.request('blockchain_' + name.to_s, args)
+    def self.method_prefix
+      'blockchain_'
     end
 
   end
