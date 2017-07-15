@@ -2,8 +2,6 @@ module Bitshares
 
   class Client
 
-    class Err < RuntimeError; end
-
     include RPC
 
     def init
@@ -24,17 +22,27 @@ module Bitshares
     end
 
     def request(m, args = [])
-      resp = nil
+      response = nil
       @req.body = { method: m, params: args, jsonrpc: '2.0', id: 0 }.to_json # id is API number?
       Net::HTTP.start(uri.hostname, uri.port, :use_ssl => use_ssl) do |http|
-        resp = http.request(@req)
+        response = http.request(@req)
       end
-      # @TODO improve error detection
-      raise Err, 'Bad credentials' if resp.class == Net::HTTPUnauthorized
-      result = JSON.parse(resp.body)
-      e = result['error']
-      raise Err, JSON.pretty_generate(e), "#{m} #{args.join(' ') if args}" if e
+      check_credentials! response
+      result = JSON.parse response.body
+      check_errors! result
       return result['result']
+    end
+
+    def check_credentials!(response)
+      raise Err, 'Bad credentials' if response.class == Net::HTTPUnauthorized
+    end
+
+    def check_errors!(result)
+      raise Err, JSON.pretty_generate(result['error']) if result['error']
+    end
+
+    def wallet_api_enabled?
+      !Bitshares.config[:wallet].nil?
     end
 
     private

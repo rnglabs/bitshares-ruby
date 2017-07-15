@@ -31,7 +31,7 @@ module Bitshares
     end
 
     def open?
-      self.get_info['open']
+      get_info['open']
     end
 
     def closed?

@@ -10,12 +10,12 @@ describe Bitshares::Market do
   MULTIPLIER = 10 # for this asset pair
 
   context '#new(quote, base)' do
-    it 'raises Bitshares::Market::Error "Invalid asset <symbol>" if an invalid asset symbol is used' do
-      expect(->{Bitshares::Market.new('BTC', 'GARBAGE')}).to raise_error Bitshares::Market::Error, 'Invalid asset: GARBAGE'
+    it 'raises Bitshares::Market::Err "Invalid asset <symbol>" if an invalid asset symbol is used' do
+      expect(->{Bitshares::Market.new('BTC', 'GARBAGE')}).to raise_error Bitshares::Market::Err, 'Invalid asset: GARBAGE'
     end
 
-    it 'raises Bitshares::Market::Error "Invalid market; quote ID <= base ID" if it is' do
-      expect(->{invalid_market}).to raise_error Bitshares::Market::Error, 'Invalid market; quote ID <= base ID'
+    it 'raises Bitshares::Market::Err "Invalid market; quote ID <= base ID" if it is' do
+      expect(->{invalid_market}).to raise_error Bitshares::Market::Err, 'Invalid market; quote ID <= base ID'
     end
 
     it 'instantiates an instance of the class with valid asset symbols (case insensitive)' do

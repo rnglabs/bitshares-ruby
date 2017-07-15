@@ -3,7 +3,6 @@ require 'spec_helper'
 describe Bitshares::Account do
 
   before { CLIENT.init }
-  before { CLIENT.request('wallet_open', ['test1']) } # ensures test wallet is open
 
   let(:wallet) { Bitshares::Wallet.new 'test1' }
   let(:account) { Bitshares::Account.new(wallet, 'account-test') }
@@ -20,18 +19,19 @@ describe Bitshares::Account do
     end
   end
 
-  context '#method_missing' do
-    it 'sends client the method appended with "wallet_account_"' do
-      expect(account.list_public_keys.first['native_pubkey']).to include 'BTS'
-    end
+#  context '#method_missing' do
+#    before { CLIENT.request('wallet_open', ['test1']) } # ensures test wallet is open
+#    it 'sends client the method appended with "wallet_account_"' do
+#      expect(account.list_public_keys.first['native_pubkey']).to include 'BTS'
+#    end
 
-    it 'sends client the method appended with "wallet_account_" and any params' do
-      begin
-        account.rename('account-test')
-      rescue Bitshares::Client::Err => e
-        expect(e.to_s).to include 'duplicate account name'
-      end
-    end
-  end
+#    it 'sends client the method appended with "wallet_account_" and any params' do
+#      begin
+#        account.rename('account-test')
+#      rescue Bitshares::Client::Err => e
+#        expect(e.to_s).to include 'duplicate account name'
+#      end
+#    end
+#  end
 
 end

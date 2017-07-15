@@ -14,13 +14,12 @@ require 'bitshares/market'
 require 'bitshares/trader'
 
 CLIENT = Bitshares::Client.new
-CHAIN = Bitshares::Blockchain
+CHAIN = Bitshares::Blockchain.new
 
 # stackoverflow.com/questions/6233124/where-to-place-access-config-file-in-gem
 module Bitshares
 
-  @config = {rpc_username: nil, rpc_password: nil, rpc_server: nil,
-             :wallet => {nil => nil}} # name/password key/value pairs
+  @config = {rpc_username: nil, rpc_password: nil, rpc_server: nil, wallet: nil}
 
   @valid_keys = @config.keys
 
@@ -39,6 +38,7 @@ module Bitshares
       return
     end
 
+    # ENV vars override other configs
     config[:rpc_username] = ENV['BITSHARES_ACCOUNT'] || config[:rpc_username]
     config[:rpc_password] = ENV['BITSHARES_PASSWORD'] || config[:rpc_password]
 
