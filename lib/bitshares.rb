@@ -19,7 +19,7 @@ CHAIN = Bitshares::Blockchain.new
 # stackoverflow.com/questions/6233124/where-to-place-access-config-file-in-gem
 module Bitshares
 
-  @config = {rpc_username: nil, rpc_password: nil, rpc_server: nil, wallet: nil}
+  @config = {rpc_username: nil, rpc_password: nil, rpc_server: 'http://127.0.0.1:8090/', wallet: nil}
 
   @valid_keys = @config.keys
 
@@ -45,12 +45,21 @@ module Bitshares
     configure(config)
   end
 
+  def self.config
+    @config
+  end
+
+  def self.wallet_api_enabled?
+    !config[:wallet].nil?
+  end
+
   def self.openledger
     configure(rpc_server: "https://bitshares.openledger.info/ws")
     CLIENT.init
   end
 
-  def self.config
-    @config
+  def self.testnet
+    configure(rpc_server: "https://node.testnet.bitshares.eu/")
+    CLIENT.init
   end
 end

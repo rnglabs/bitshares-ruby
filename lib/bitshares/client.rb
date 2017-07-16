@@ -47,10 +47,6 @@ module Bitshares
       end
     end
 
-    def wallet_api_enabled?
-      !Bitshares.config[:wallet].nil?
-    end
-
     private
 
     def check_rpc!

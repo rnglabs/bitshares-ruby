@@ -19,7 +19,7 @@ module Bitshares
     # Methods that use the wallet should make sure it's open
     # So a check there should sufice
     def require_wallet_api!
-      raise Err, "Need access to a Wallet API!" unless CLIENT.wallet_api_enabled?
+      raise Err, "Need access to a Wallet API!" unless Bitshares.wallet_api_enabled?
     end
 
     def open
