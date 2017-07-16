@@ -16,19 +16,25 @@ module Bitshares
       @account = Bitshares::Account.new(self, name)
     end
 
+    # Methods that use the wallet should make sure it's open
+    # So a check there should sufice
+    def require_wallet_api!
+      raise Err, "Need access to a Wallet API!" unless CLIENT.wallet_api_enabled?
+    end
+
     def open
       require_wallet_api!
-      CLIENT.request('wallet_open', [@name])
+      wallet_open @name
     end
 
     def lock
       open # must be opened first
-      CLIENT.request 'wallet_lock'
+      wallet_lock
     end
 
     def unlock(timeout = 1776)
       open # must be opened first
-      CLIENT.request('wallet_unlock', [timeout, @password])
+      wallet_unlock timeout, @password
     end
 
     def open?
@@ -46,10 +52,6 @@ module Bitshares
 
     def locked?
       !unlocked?
-    end
-
-    def method_prefix
-      'wallet_'
     end
 
   end
