@@ -7,7 +7,7 @@ module Bitshares
       symbols = [symbols] unless symbols.respond_to? :each
       symbols.map(&:upcase!)
       assets = CLIENT.lookup_asset_symbols symbols
-      raise Err, "Invalid asset: #{symbols}" if assets.nil?
+      raise Err, "Invalid asset: #{symbols}" if assets.nil? || assets.empty?
       assets_ids = assets.collect{|a| a['id']}
       raise Err, "Invalid asset: #{symbols}" if assets_ids.count != symbols.count
 

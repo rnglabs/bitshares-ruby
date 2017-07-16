@@ -17,6 +17,7 @@ module Bitshares
     end
 
     def open
+      require_wallet_api!
       CLIENT.request('wallet_open', [@name])
     end
 

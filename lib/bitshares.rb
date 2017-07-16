@@ -45,6 +45,11 @@ module Bitshares
     configure(config)
   end
 
+  def self.openledger
+    configure(rpc_server: "https://bitshares.openledger.info/ws")
+    CLIENT.init
+  end
+
   def self.config
     @config
   end

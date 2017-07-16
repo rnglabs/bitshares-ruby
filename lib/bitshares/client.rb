@@ -23,7 +23,8 @@ module Bitshares
 
     def request(m, args = [])
       response = nil
-      @req.body = { method: m, params: args, jsonrpc: '2.0', id: 0 }.to_json # id is API number?
+      # id should be random/sequential, user to id request/answer
+      @req.body = { method: m, params: args, jsonrpc: '2.0', id: 0 }.to_json
       Net::HTTP.start(uri.hostname, uri.port, :use_ssl => use_ssl) do |http|
         response = http.request(@req)
       end
@@ -38,7 +39,12 @@ module Bitshares
     end
 
     def check_errors!(result)
-      raise Err, JSON.pretty_generate(result['error']) if result['error']
+      e = result['error'] || return
+      if e['message']
+        raise Err, e['message']
+      else
+        raise Err, JSON.pretty_generate(e)
+      end
     end
 
     def wallet_api_enabled?
