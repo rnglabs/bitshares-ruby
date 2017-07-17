@@ -1,57 +1,53 @@
-# Bitshares Ruby Gem - PLACEHOLDER FOR GRAPHENE BRANCH
+# Bitshares 2.0 (Graphene) Ruby Gem
 
-This Gem provides a Ruby API for the BitShares command line client by exposing the RPC commands of the [Bitshares client v0.x](https://github.com/bitshares/bitshares) as methods of it's Client class.
+This Gem provides a Ruby API for BitShares Remote Procedure Calls.
 
-The binary client; "bitshares_client" must be installed, configured and running. The Gem detects the port the HTTP JSON RPC server is running on and expects the RPC endpoint to be `localhost` for security reasons - see [Configuration file settings](http://wiki.bitshares.org/index.php/BitShares/API).
+Use it with a public RPC server to access the
+[Blockchain API](http://docs.bitshares.org/api/blockchain-api.html).
+
+Or configure an account with a local wallet to access the
+[Wallet API](http://docs.bitshares.org/api/wallet-api.html)
+
+Wallet should be installed and running, RPC port should be locally
+accessible and credentials should be provided for the Wallet API to
+work.
 
 ## Requirements
 
-_Important:_ The interface uses the command line binary, not the GUI app.
-Tested with v0.9.2 client on Mac OS X (10.9.5) and Ubuntu 14.04. Should work on any *NIX platform - sorry not Windows.
+Blockchain API should work with public RPCs without any requirement.
+
+Wallet API requires the [CLI Wallet](http://docs.bitshares.org/integration/apps/cliwallet.html) to be installed and running.
 
 ## Installation
 
-Add this line to your application's Gemfile:
+@TODO rubygems has the version for Bitshares 1.0
+
+## Configuration
+
+RPC server login credentials can be configured with a hash:
 
 ```ruby
-gem 'bitshares'
+  Bithares.configure({
+      rpc_username: nil,
+      rpc_password: nil,
+      rpc_server: 'http://127.0.0.1:8090/',
+      wallet: nil })
 ```
 
-And then execute:
+@TODO move to config details doc page
 
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install bitshares
-
-## Authentication
-
-RPC server login credentials (registered account name and password) must be stored in the following environment variables:-
+Or stored in the following **environment variables**:
 
   `$BITSHARES_ACCOUNT`
 
   `$BITSHARES_PASSWORD`
 
-## Configuration
+__Environment variables override other configuration methods.__
 
-The Gem allows multiple wallet names and passwords to be stored so that actions requiring these data may be automated.
-To use this functionality - i.e. with the Wallet class (see below) wallet names and passwords must be configured in either of the following ways:
-
-**Via a hash**
-```Ruby
-Bitshares.configure(:wallet => {'wallet1' => 'password1'})
-Bitshares.configure(:wallet => {'wallet2' => 'password2'})
-...
-```
-
-**From a Yaml configuration file**
-```Ruby
-Bitshares.configure_with 'path-to-Yaml-file'
-```
+From a **yaml configuration file**
 
 ```Ruby
-Bitshares.config # returns the configuration hash
+Bitshares.configure_with 'path-to-yaml-file'
 ```
 
 ## Usage
@@ -61,32 +57,60 @@ Bitshares.config # returns the configuration hash
 ```ruby
 require 'bitshares'
 
-client = CLIENT.init # CLIENT = Bitshares::Client -the object BitShares RPC client calls are routed to.
-client.synced? # if you wish to check whether you are synced with the p2p network.
+# Default configuration is local RPC no credentials
+# Bithares.configure({
+#     rpc_username: nil,
+#     rpc_password: nil,
+#     rpc_server: 'http://127.0.0.1:8090/',
+#     wallet: nil })
+
+client = CLIENT.init # Init RPC client and chck RPC status
 ```
 Any valid client command can then be issued via a method call with relevant parameters - e.g.
 
 ```ruby
-client.get_info
-client.wallet_open 'default'
-client.blockchain_list_delegates
-client_wallet_market_submit_bid(account, amount, quote, price, base)
+chain = Bitshares::Blockchain.new
+witnesses_ids = chain.lookup_witness_accounts('',100).collect(&:last)
+chain.get_witnesses([witnesses_ids])
 ...
 ```
 
 Data is returned as a hash
 
+###  Convenience methods
+
+Just open a ruby console and start hacking away.
+
+```ruby
+require 'bitshares'
+
+# Configure openledger public RPC and init.
+c = Bitshares.openledger
+c.get_chain_id
+eth_bts = Bitshares::Market.new('eth','bts')
+eth_bts.mid_price
+
+# Configure testnet public RPC and init.
+c = Bitshares.testnet
+c.get_chain_id
+```
 ### Detailed usage
 
-**Blockchain**
+#### Blockchain
 
-The blockchain is implemented as a class purely for convenience when calling 'blockchain_' methods:
+See http://docs.bitshares.org/api/blockchain-api.html
+
 ```Ruby
-chain = Bitshares::Blockchain # CHAIN may be used
-count = chain.get_block_count # equivalent to client.blockchain_get_block_count
+chain = Bitshares::Blockchain.new
+count = chain.get_block_count
+bts, usd, cny = chain.assets(['bts','uSd','CNY'])
 ```
 
-**Wallet**
+#### Wallet
+
+**Wallet API currently untested**
+
+See http://docs.bitshares.org/api/wallet-api.html
 
 ```Ruby
 wallet = Bitshares::Wallet.new 'wallet1' # opens a wallet available on this client.
@@ -132,55 +156,33 @@ wallet.account_balance # lists the balances for all accounts for this wallet (c.
 
 **Market**
 
-The market class represents the trading (order book and history) for a given an asset-pair - e.g. CNY/BTS. It is instantiated like this:
+The market class represents the trading (order book and history) for a given an
+asset-pair - e.g. CNY/BTS. It is instantiated like this:
 ```Ruby
 cny_bts = Bitshares::Market.new('CNY', 'BTS')
 ```
 _Note that the BitShares market convention is that quote asset_id > base asset_id. Reversing the symbols in the above example results in the client returning  an 'Invalid Market' error._ An asset's id can be found from the asset hash by using:
 ```Ruby
-Bitshares::Blockchain.get_asset 'CNY' # for example
+Bitshares::Blockchain.asset 'CNY' # for example
 ```
 
 The following 'blockchain_market_' client methods may then be used without specifying the quote and base assets again, but with any other optional args the client accepts:
-```Ruby
-cny_bts.list_asks # equivalent to blockchain_market_list_asks(quote, base) [limit]
-cny_bts.list_bids
-cny_bts.list_covers
-cny_bts.order_book
-cny_bts.order_history
-cny_bts.price_history # required params are: <start time> <duration> optional: [granularity]
 
-cny_bts.list_shorts # requires no params and ignores the base asset
-cny_bts.get_asset_collateral # requires no params and returns the collateral for the quote asset (ignores the base asset)
-```
-
-Additionally, the following methods are available:
 ```Ruby
+cny_bts.ticker
 cny_bts.lowest_ask
 cny_bts.highest_bid
-cny_bts.mid_price # mean of the above
-cny_bts.last_fill # price of the last filled order
+cny_bts.mid_price
+cny_bts.order_book(limit=50)
+cny_bts.limit_orders(limit=50)
+cny_bts.trade_history(since=nil,to=nil,limit=100)
+cny_bts.get_24_volume
+
 ```
 
 **Trading**
 
-So, once we have an account and a market, what do we need to trade - why a Trader of course!
-
-```Ruby
-cny_bts_trader = Bitshares::Trader.new(account, cny_bts) # using examples above
-```
-
-You can now do this:
-```Ruby
-cny_bts_trader.order_list # lists orders for the account and market - optional limit arg. Returns orders array
-
-cny_bts_trader.submit_bid(quantity, price) # buy <quantity> of Market base (BTS here) at <price> (quote/base)
-cny_bts_trader.submit_ask(quantity, price) # sell <quantity> of Market base (BTS here) at <price> (quote/base)
-  # both return respective order id
-
-cny_bts_trader.cancel_orders(*order_ids) # cancels one or more orders for the account and market
-  # returns array of memo's e.g. 'cancel ASK-90189b6e'
-```
+Unported
 
 ## Specification & tests
 
@@ -190,24 +192,12 @@ For the full specification clone this repo and run:
 
 **Test Requirements**
 
-There is currently no test blockchain, so the test suite runs on the live one - orders and all. If this concerns you - and it should :scream: - feel free to browse the test code first. The following client 'fixtures' are required for the full test suite to run and pass:
-
-<<<<<<< HEAD
-An empty wallet 'test1', with password 'password1' and an account called 'account-test' *Please don't register this account!*. The account will also need funding with a few BTS as trades/cancellations are 0.5 BTS each. 10 BTS (circa 2.5 cents right now) should be more than enough to run the suite a few times.
-=======
-Tests with a real cost (e.g. submitting/cancelling orders) are disabled by default. To include these use the following environment variable setting:
-```
-export BITSHARES_INCLUDE_TESTS_WITH_COSTS=true
-```
-If these tests are included, the 'test1' account will need funding beforehand with a few BTS, as trades/cancellations are 0.5 BTS each. 10 BTS (circa 2.5 cents right now) should be more than enough to run the suite a few times.
->>>>>>> master
+@TODO test wallet methods in testnet.
 
 ## Contributing
 
 Bug reports, pull requests (and feature requests) are welcome on GitHub at https://github.com/MatzFan/bitshares-ruby.
 
-
 ## License
 
 The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
-

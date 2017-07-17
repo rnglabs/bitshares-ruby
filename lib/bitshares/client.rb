@@ -5,6 +5,7 @@ module Bitshares
     include RPC
 
     def init
+      @uri = nil
       @req = Net::HTTP::Post.new(uri)
       @req.content_type = 'application/json'
       user, pass = Bitshares.config.values_at(:rpc_username,:rpc_password)

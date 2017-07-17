@@ -8,7 +8,7 @@ module Bitshares
 
     DATE_FORMAT = '%FT%R'.freeze
 
-    # @TODO consider removing all usage of CHAIN/CLIENT 
+    # @TODO consider removing all usage of CHAIN/CLIENT
     def initialize(base, quote)
       @base_hash, @quote_hash = CHAIN.get_assets(base, quote)
       @base, @quote = @base_hash['symbol'], @quote_hash['symbol']
@@ -31,6 +31,7 @@ module Bitshares
     def mid_price
       return nil if highest_bid.nil? || lowest_ask.nil?
       (highest_bid + lowest_ask) / 2
+    end
 
     def order_book(limit=50)
       get_order_book(@base, @quote, limit)

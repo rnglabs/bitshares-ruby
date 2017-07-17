@@ -25,6 +25,10 @@ module Bitshares
 
   def self.configure(opts = {})
     opts.each {|k,v| @config[k.to_sym] = v if @valid_keys.include? k.to_sym}
+
+    # ENV vars override other configs
+    @config[:rpc_username] = ENV['BITSHARES_ACCOUNT'] || @config[:rpc_username]
+    @config[:rpc_password] = ENV['BITSHARES_PASSWORD'] || @config[:rpc_password]
   end
 
   def self.configure_with(path_to_yaml_file)
@@ -37,11 +41,6 @@ module Bitshares
       puts 'YAML configuration file contains invalid syntax. Using defaults'
       return
     end
-
-    # ENV vars override other configs
-    config[:rpc_username] = ENV['BITSHARES_ACCOUNT'] || config[:rpc_username]
-    config[:rpc_password] = ENV['BITSHARES_PASSWORD'] || config[:rpc_password]
-
     configure(config)
   end
 
@@ -50,7 +49,7 @@ module Bitshares
   end
 
   def self.wallet_api_enabled?
-    !config[:wallet].nil?
+    config[:wallet].responds_to? :[]
   end
 
   def self.openledger

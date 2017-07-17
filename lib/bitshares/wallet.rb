@@ -9,7 +9,7 @@ module Bitshares
     def initialize(name)
       @name = name
       @account = nil
-      @password = Bitshares.config[:wallet][@name]
+      @password = Bitshares.config[:wallet][@name] if Bitshares.wallet_api_enabled?
     end
 
     def account(name)
@@ -22,6 +22,7 @@ module Bitshares
       raise Err, "Need access to a Wallet API!" unless Bitshares.wallet_api_enabled?
     end
 
+    # @TODO should we check if it's already open?
     def open
       require_wallet_api!
       wallet_open @name

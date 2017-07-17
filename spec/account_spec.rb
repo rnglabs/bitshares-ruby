@@ -2,8 +2,6 @@ require 'spec_helper'
 
 describe Bitshares::Account do
 
-  before { CLIENT.init }
-
   let(:wallet) { Bitshares::Wallet.new 'test1' }
   let(:account) { Bitshares::Account.new(wallet, 'account-test') }
 
