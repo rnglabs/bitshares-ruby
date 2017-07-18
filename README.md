@@ -6,7 +6,7 @@ Use it with a public RPC server to access the
 [Blockchain API](http://docs.bitshares.org/api/blockchain-api.html).
 
 Or configure an account with a local wallet to access the
-[Wallet API](http://docs.bitshares.org/api/wallet-api.html)
+[Wallet API](http://docs.bitshares.org/api/wallet-api.html).
 
 Wallet should be installed and running, RPC port should be locally
 accessible and credentials should be provided for the Wallet API to
@@ -14,13 +14,13 @@ work.
 
 ## Requirements
 
-Blockchain API should work with public RPCs without any requirement.
+**Blockchain API** should work with public RPCs without any requirement.
 
-Wallet API requires the [CLI Wallet](http://docs.bitshares.org/integration/apps/cliwallet.html) to be installed and running.
+**Wallet API** requires the [CLI Wallet](http://docs.bitshares.org/integration/apps/cliwallet.html) to be installed and running.
 
 ## Installation
 
-@TODO rubygems has the version for Bitshares 1.0
+_@TODO not in rubygems yet_
 
 ## Configuration
 
@@ -28,27 +28,16 @@ RPC server login credentials can be configured with a hash:
 
 ```ruby
   Bithares.configure({
-      rpc_username: nil,
-      rpc_password: nil,
-      rpc_server: 'http://127.0.0.1:8090/',
-      wallet: nil })
+      rpc: {
+        username: nil,
+        password: nil,
+        server: 'http://127.0.0.1:8090/' },
+      wallet: {
+        name:nil,
+        password: nil } })
 ```
 
-@TODO move to config details doc page
-
-Or stored in the following **environment variables**:
-
-  `$BITSHARES_ACCOUNT`
-
-  `$BITSHARES_PASSWORD`
-
-__Environment variables override other configuration methods.__
-
-From a **yaml configuration file**
-
-```Ruby
-Bitshares.configure_with 'path-to-yaml-file'
-```
+You can also use [environment vars or a yaml file](wiki/Configuration).
 
 ## Usage
 
@@ -57,21 +46,16 @@ Bitshares.configure_with 'path-to-yaml-file'
 ```ruby
 require 'bitshares'
 
-# Default configuration is local RPC no credentials
-# Bithares.configure({
-#     rpc_username: nil,
-#     rpc_password: nil,
-#     rpc_server: 'http://127.0.0.1:8090/',
-#     wallet: nil })
-
-client = CLIENT.init # Init RPC client and chck RPC status
+# Init RPC client and check RPC status
+# Default configuration is Local RPC no credentials
+# _Will throw exception if RPC is not up!_
+bts = Bithares.init
 ```
 Any valid client command can then be issued via a method call with relevant parameters - e.g.
 
 ```ruby
-chain = Bitshares::Blockchain.new
-witnesses_ids = chain.lookup_witness_accounts('',100).collect(&:last)
-chain.get_witnesses([witnesses_ids])
+witnesses_ids = bts.lookup_witness_accounts('',100).collect(&:last)
+bts.get_witnesses([witnesses_ids])
 ...
 ```
 
@@ -85,14 +69,14 @@ Just open a ruby console and start hacking away.
 require 'bitshares'
 
 # Configure openledger public RPC and init.
-c = Bitshares.openledger
-c.get_chain_id
-eth_bts = Bitshares::Market.new('eth','bts')
+bts = Bitshares.openledger
+bts.get_chain_id
+eth_bts = bts.market('eth','bts')
 eth_bts.mid_price
 
 # Configure testnet public RPC and init.
-c = Bitshares.testnet
-c.get_chain_id
+bts = Bitshares.testnet
+bts.get_chain_id
 ```
 ### Detailed usage
 
@@ -101,9 +85,9 @@ c.get_chain_id
 See http://docs.bitshares.org/api/blockchain-api.html
 
 ```Ruby
-chain = Bitshares::Blockchain.new
-count = chain.get_block_count
-bts, usd, cny = chain.assets(['bts','uSd','CNY'])
+bts = Bitshares.openledger
+count = bts.get_block_count
+bts, usd, cny = bts.assets(['bts','usd','cny'])
 ```
 
 #### Wallet
@@ -113,48 +97,20 @@ bts, usd, cny = chain.assets(['bts','uSd','CNY'])
 See http://docs.bitshares.org/api/wallet-api.html
 
 ```Ruby
-wallet = Bitshares::Wallet.new 'wallet1' # opens a wallet available on this client.
-```
-Note that the following command opens the named wallet, but does not return an instance of Wallet class - use Wallet.new
-```Ruby
-wallet.open 'wallet1'
-```
-
-Thereafter 'wallet_' commands may be issued like this:
-```Ruby
-wallet.get_info # gets info on this wallet, equivalent to client.wallet_get_info
-wallet.transfer(amount, asset, from, recipient) # equivalent to - you get the picture..
-```
-A wallet is unlocked and closed in a similar fashion:
-```Ruby
-wallet.unlock
-wallet.close
+Bitshares.configure({
+    wallet: {
+      name: "AccountName",
+      password: "P4ssw0rd" } })
+bts = Bitshares.init
 ```
 
-Predicates are provided for convenience:
+Now you can call Wallet API methods by name:
+
 ```Ruby
-wallet.open?
-wallet.unlocked?
+bts.wallet.vote_for_witness('test-account','rnglab',true)
 ```
 
-**Account**
-
-Once you have a wallet instance you can do the following, which references a particular wallet account:
-```Ruby
-account = wallet.account 'account_name'
-```
-Thereafter all 'wallet_account_' client commands may be issued without specifying the account_name parameter:
-```Ruby
-account.balance # balance for a particular account
-account.order_list # optional [limit] param
-account_register(pay_from_account [, optional params]) # this command takes up to 3 optional params
-```
-'wallet_account_' client commands taking an *optional* account_name parameter list all data for all of a wallet's accounts. If this is required, the relevant Wallet method should be used - e.g:
-```Ruby
-wallet.account_balance # lists the balances for all accounts for this wallet (c.c. above)
-```
-
-**Market**
+#### Market
 
 The market class represents the trading (order book and history) for a given an
 asset-pair - e.g. CNY/BTS. It is instantiated like this:
@@ -163,10 +119,10 @@ cny_bts = Bitshares::Market.new('CNY', 'BTS')
 ```
 _Note that the BitShares market convention is that quote asset_id > base asset_id. Reversing the symbols in the above example results in the client returning  an 'Invalid Market' error._ An asset's id can be found from the asset hash by using:
 ```Ruby
-Bitshares::Blockchain.asset 'CNY' # for example
+cny = Bitshares::Blockchain.new.asset 'CNY' # for example
 ```
 
-The following 'blockchain_market_' client methods may then be used without specifying the quote and base assets again, but with any other optional args the client accepts:
+The following methods may then be used without specifying the quote and base assets again, allowing other optional args the client accepts:
 
 ```Ruby
 cny_bts.ticker
@@ -180,11 +136,7 @@ cny_bts.get_24_volume
 
 ```
 
-**Trading**
-
-Unported
-
-## Specification & tests
+#### Specification & tests
 
 For the full specification clone this repo and run:
 
@@ -192,7 +144,7 @@ For the full specification clone this repo and run:
 
 **Test Requirements**
 
-@TODO test wallet methods in testnet.
+_@TODO test wallet methods in testnet._
 
 ## Contributing
 

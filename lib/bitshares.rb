@@ -13,22 +13,27 @@ require 'bitshares/account'
 require 'bitshares/market'
 require 'bitshares/trader'
 
-CLIENT = Bitshares::Client.new
-CHAIN = Bitshares::Blockchain.new
-
 # stackoverflow.com/questions/6233124/where-to-place-access-config-file-in-gem
 module Bitshares
-
-  @config = {rpc_username: nil, rpc_password: nil, rpc_server: 'http://127.0.0.1:8090/', wallet: nil}
-
-  @valid_keys = @config.keys
+  @defaults = {rpc: {username: nil, password: nil, server: 'http://127.0.0.1:8090/'}, wallet: {name: nil, password: nil}}
+  @config = @defaults
 
   def self.configure(opts = {})
-    opts.each {|k,v| @config[k.to_sym] = v if @valid_keys.include? k.to_sym}
+    # Assign only whitelisted config params
+    opts.each do |key,value|
+      key = key.to_sym
+      if @defaults.keys.include? key
+        if value.is_a? Hash
+          @config[key].merge! value.select{|field,_| @defaults[key].keys.include?(field.to_sym) }
+        else
+          @config[key] = value
+        end
+      end
+    end
 
     # ENV vars override other configs
-    @config[:rpc_username] = ENV['BITSHARES_ACCOUNT'] || @config[:rpc_username]
-    @config[:rpc_password] = ENV['BITSHARES_PASSWORD'] || @config[:rpc_password]
+    @config[:rpc][:username] = ENV['BITSHARES_ACCOUNT'] || @config[:rpc][:username]
+    @config[:rpc][:password] = ENV['BITSHARES_PASSWORD'] || @config[:rpc][:password]
   end
 
   def self.configure_with(path_to_yaml_file)
@@ -48,17 +53,17 @@ module Bitshares
     @config
   end
 
-  def self.wallet_api_enabled?
-    config[:wallet].responds_to? :[]
-  end
-
   def self.openledger
-    configure(rpc_server: "https://bitshares.openledger.info/ws")
-    CLIENT.init
+    configure(rpc: { server: "https://bitshares.openledger.info/ws" })
+    init
   end
 
   def self.testnet
-    configure(rpc_server: "https://node.testnet.bitshares.eu/")
-    CLIENT.init
+    configure(rpc: { server: "https://node.testnet.bitshares.eu/" })
+    init
+  end
+
+  def self.init
+    Bitshares::Client.new(config)
   end
 end

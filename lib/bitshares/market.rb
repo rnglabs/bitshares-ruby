@@ -2,22 +2,20 @@ module Bitshares
 
   class Market
 
-    include RPC
-
     attr_reader :base, :quote
 
     DATE_FORMAT = '%FT%R'.freeze
 
-    # @TODO consider removing all usage of CHAIN/CLIENT
-    def initialize(base, quote)
-      @base_hash, @quote_hash = CHAIN.get_assets(base, quote)
+    def initialize(blockchain, base, quote)
+      @blockchain = blockchain
+      @base_hash, @quote_hash = @blockchain.get_assets(base, quote)
       @base, @quote = @base_hash['symbol'], @quote_hash['symbol']
       valid_market?(@base_hash['id'], @quote_hash['id'])
       @multiplier = multiplier
     end
 
     def ticker
-      get_ticker(@base, @quote)
+      @blockchain.get_ticker(@base, @quote)
     end
 
     def lowest_ask
@@ -34,23 +32,23 @@ module Bitshares
     end
 
     def order_book(limit=50)
-      get_order_book(@base, @quote, limit)
+      @blockchain.get_order_book(@base, @quote, limit)
     end
 
     def limit_orders(limit=50)
-      get_limit_orders(@base, @quote, limit)
+      @blockchain.get_limit_orders(@base, @quote, limit)
     end
 
     def trade_history(since=nil,to=nil,limit=100)
       since ||= Date.new(1970,1,1)
       to ||= Date.today
-      get_trade_history(@base, @quote,
+      @blockchain.get_trade_history(@base, @quote,
           since.strftime(DATE_FORMAT),
           to.strftime(DATE_FORMAT), limit)
     end
 
     def get_24_volume
-      CLIENT.get_24_volume(@base, @quote)
+      @blockchain.get_24_volume(@base, @quote)
     end
 
     # @TODO GRAPHENE PORT

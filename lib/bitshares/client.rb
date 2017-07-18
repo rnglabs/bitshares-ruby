@@ -2,62 +2,35 @@ module Bitshares
 
   class Client
 
-    include RPC
+    attr_reader :wallet
 
-    def init
-      @uri = nil
-      @req = Net::HTTP::Post.new(uri)
-      @req.content_type = 'application/json'
-      user, pass = Bitshares.config.values_at(:rpc_username,:rpc_password)
-      @req.basic_auth(user, pass) if user
-      check_rpc!
-      return self
+    include RPCMagic
+
+    def initialize(config)
+      @rpc = Bitshares::RPC.new(config[:rpc])
+      # This is a blocking http call that will be called the first time
+      @rpc.check_rpc!
+      @wallet = Bitshares::Wallet.new(@rpc, config[:wallet])
     end
 
-    def uri
-      @uri ||= URI(Bitshares.config[:rpc_server])
+    def get_assets(*symbols)
+      symbols = [symbols] unless symbols.respond_to? :each
+      symbols.map(&:upcase!)
+      found_assets = lookup_asset_symbols symbols
+      raise Err, "Invalid asset: #{symbols}" if found_assets.nil? || found_assets.empty?
+      assets_ids = found_assets.collect{|a| a['id']}
+      raise Err, "Invalid asset: #{symbols}" if assets_ids.count != symbols.count
+
+      request('get_assets',[assets_ids])
+    end
+    alias_method :get_asset, :get_assets
+    alias_method :assets, :get_assets
+    alias_method :asset, :get_assets
+
+    def market(base, quote)
+      Bitshares::Market.new(self,base,quote)
     end
 
-    def use_ssl
-      uri.scheme.downcase == 'https'
-    end
-
-    def request(m, args = [])
-      response = nil
-      # id should be random/sequential, user to id request/answer
-      @req.body = { method: m, params: args, jsonrpc: '2.0', id: 0 }.to_json
-      Net::HTTP.start(uri.hostname, uri.port, :use_ssl => use_ssl) do |http|
-        response = http.request(@req)
-      end
-      check_credentials! response
-      result = JSON.parse response.body
-      check_errors! result
-      return result['result']
-    end
-
-    def check_credentials!(response)
-      raise Err, 'Bad credentials' if response.class == Net::HTTPUnauthorized
-    end
-
-    def check_errors!(result)
-      e = result['error'] || return
-      if e['message']
-        raise Err, e['message']
-      else
-        raise Err, JSON.pretty_generate(e)
-      end
-    end
-
-    private
-
-    def check_rpc!
-      return true if rpc_online?
-      raise Err, 'RPC Server is offline!'
-    end
-
-    def rpc_online?
-      !(get_chain_id =~ /[0-9a-f]{64}/).nil?
-    end
   end
 
 end
