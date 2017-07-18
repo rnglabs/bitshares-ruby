@@ -1,7 +1,7 @@
 module Bitshares
 
   class Client
-
+    class Err < RuntimeError; end
     attr_reader :wallet
 
     include RPCMagic

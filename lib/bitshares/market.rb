@@ -29,7 +29,7 @@ module Bitshares
 
     def mid_price
       return nil if highest_bid.nil? || lowest_ask.nil?
-      (highest_bid + lowest_ask) / 2
+      (highest_bid.to_f + lowest_ask.to_f) / 2
     end
 
     def order_book(limit=50)

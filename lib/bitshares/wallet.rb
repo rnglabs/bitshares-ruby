@@ -1,6 +1,7 @@
 module Bitshares
 
   class Wallet
+    class Err < RuntimeError; end
 
     attr_reader :name, :account
 
