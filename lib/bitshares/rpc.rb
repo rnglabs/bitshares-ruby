@@ -1,11 +1,15 @@
 module Bitshares
-  class Err < RuntimeError; end
-
   class RPC
+    class Err < RuntimeError; end
+
+    def check_rpc!
+      return true if rpc_online?
+      raise Err, 'RPC Server is offline!'
+    end
 
     private
 
-    def initialize!(config)
+    def initialize(config)
       @uri = URI(config[:server])
       @rpc = Net::HTTP::Post.new(@uri)
       @rpc.content_type = 'application/json'
@@ -26,13 +30,8 @@ module Bitshares
       return result['result']
     end
 
-    def check_rpc!
-      return true if rpc_online?
-      raise Err, 'RPC Server is offline!'
-    end
-
     def rpc_online?
-      @online ||= !(get_chain_id =~ /[0-9a-f]{64}/).nil?
+      @online ||= !(request('get_chain_id') =~ /[0-9a-f]{64}/).nil?
     end
 
     def check_credentials!(response)

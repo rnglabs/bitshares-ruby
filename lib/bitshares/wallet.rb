@@ -8,7 +8,6 @@ module Bitshares
 
     def initialize(rpc, config)
       @rpc = rpc
-      @uri = rpc.uri
       @name = config[:name]
       @password = config[:password]
     end

@@ -6,12 +6,10 @@ require 'net/http'
 require 'yaml'
 
 require 'bitshares/rpc'
+require 'bitshares/rpcmagic'
 require 'bitshares/client'
-require 'bitshares/blockchain'
 require 'bitshares/wallet'
-require 'bitshares/account'
 require 'bitshares/market'
-require 'bitshares/trader'
 
 # stackoverflow.com/questions/6233124/where-to-place-access-config-file-in-gem
 module Bitshares

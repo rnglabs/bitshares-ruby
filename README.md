@@ -119,10 +119,10 @@ cny_bts = bts.market('CNY', 'BTS')
 ```
 _Note that the BitShares market convention is that quote asset_id > base asset_id. Reversing the symbols in the above example results in the client returning  an 'Invalid Market' error._ An asset's id can be found from the asset hash by using:
 ```Ruby
-cny = bts.asset 'CNY'
+cny = bts.assets('CNY').first
 ```
 
-The following methods may then be used without specifying the quote and base assets again, allowing other optional args the client accepts:
+The following methods may then be used without specifying the quote and base assets again, allowing other optional arguments the client accepts:
 
 ```Ruby
 cny_bts.ticker
