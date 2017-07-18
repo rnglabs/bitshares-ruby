@@ -17,7 +17,7 @@ module Bitshares
     end
 
     def self.wallet_api_enabled?
-      [@name,@password,@rpc].none? :nil?
+      [@name,@password,@rpc].none?(&:nil?)
     end
 
     def locked?

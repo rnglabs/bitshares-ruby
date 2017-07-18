@@ -1,6 +1,7 @@
 module Bitshares
 
   class Market
+    class Err < RuntimeError; end
 
     attr_reader :base, :quote
 

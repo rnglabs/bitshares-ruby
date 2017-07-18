@@ -7,8 +7,6 @@ module Bitshares
       raise Err, 'RPC Server is offline!'
     end
 
-    private
-
     def initialize(config)
       @uri = URI(config[:server])
       @rpc = Net::HTTP::Post.new(@uri)
@@ -29,6 +27,8 @@ module Bitshares
       check_errors! result
       return result['result']
     end
+
+    private
 
     def rpc_online?
       @online ||= !(request('get_chain_id') =~ /[0-9a-f]{64}/).nil?

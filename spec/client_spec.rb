@@ -2,75 +2,34 @@ require 'spec_helper'
 
 describe Bitshares::Client do
 
-  let(:client) { CLIENT }
+  let(:client) { Bitshares.testnet }
 
-  context '#new' do
-    it 'raises Bitshares::Client::Rpc::Err "RPC Server is offline!" if the server isn\'t running' do
-      client.init
-      allow(client).to receive(:rpc_online?).and_return false
-      expect(->{client.send :check_rpc!}).to raise_error Bitshares::Client::Err, 'RPC Server is offline!'
+  # context 'configuration'
+
+  context '#testnet' do
+    it 'returns a Bitshares::Client' do
+      expect(client.class).to eq Bitshares::Client
     end
   end
 
-
-  context '#rpc_request' do
-    # context 'using ENV credentials' do
-      # it 'with invalid username raises Bitshares::Client::Err "Bad credentials"' do
-      #   stub_const('ENV', ENV.to_hash.merge('BITSHARES_ACCOUNT' => 'wrong_username', 'BITSHARES_PASSWORD' => 'password1'))
-      #   client.init
-      #   expect(->{client.get_chain_id}).to raise_error Bitshares::Client::Err, 'Bad credentials'
-      # end
-
-      # it 'with invalid password raises Bitshares::Client::Err "Bad credentials"' do
-      #   stub_const('ENV', ENV.to_hash.merge('BITSHARES_ACCOUNT' => 'test1', 'BITSHARES_PASSWORD' => 'wrong_password'))
-      #   client.init
-      #   expect(->{client.get_chain_id}).to raise_error Bitshares::Client::Err, 'Bad credentials'
-      # end
-
-      it 'with an invalid client command raises Bitshares::Client::Err' do
-        client.init
-        expect(->{client.not_a_cmd}).to raise_error Bitshares::Client::Err
-      end
-
-      it 'with a valid client command returns valid data' do
-        client.init
-        expect(client.get_chain_id).to match /[0-9a-f]{64}/
-      end
+  context '#wallet' do
+    it 'returns a Bithares::Wallet' do
+      expect(client.wallet.class).to eq Bitshares::Wallet
     end
+  end
 
-  #   context 'using config credentials' do
+  context '#market' do
+    it 'returns a Bithares::Market' do
+      expect(client.market('eur','usd').class).to eq Bitshares::Market
+    end
+  end
 
-  #     it 'with invalid username raises Bitshares::Client::Err "Bad credentials"' do
-  #       Bitshares.configure(:rpc_username => 'wrong_username')
-  #       stub_const('ENV', ENV.to_hash.merge('BITSHARES_ACCOUNT' => nil))
-  #       stub_const('ENV', ENV.to_hash.merge('BITSHARES_PASSWORD' => nil))
-  #       client.init
-  #       expect(->{client.get_info}).to raise_error Bitshares::Client::Err, 'Bad credentials'
-  #     end
-
-  #     it 'with invalid password raises Bitshares::Client::Err "Bad credentials"' do
-  #       Bitshares.configure(:rpc_password => 'wrong_password')
-  #       stub_const('ENV', ENV.to_hash.merge('BITSHARES_ACCOUNT' => nil))
-  #       stub_const('ENV', ENV.to_hash.merge('BITSHARES_PASSWORD' => nil))
-  #       client.init
-  #       expect(->{client.get_info}).to raise_error Bitshares::Client::Err, 'Bad credentials'
-  #     end
-
-  #     it 'with valid credentials and invalid client command raises Bitshares::Client::Err' do
-  #       stub_const('ENV', ENV.to_hash.merge('BITSHARES_ACCOUNT' => nil))
-  #       stub_const('ENV', ENV.to_hash.merge('BITSHARES_PASSWORD' => nil))
-  #       client.init
-  #       expect(->{client.not_a_cmd}).to raise_error Bitshares::Client::Err
-  #     end
-
-  #     it 'with valid credentials and valid client command returns a Hash of returned JSON data' do
-  #       stub_const('ENV', ENV.to_hash.merge('BITSHARES_ACCOUNT' => nil))
-  #       stub_const('ENV', ENV.to_hash.merge('BITSHARES_PASSWORD' => nil))
-  #       client.init
-  #       expect(client.get_info.class).to eq Hash
-  #     end
-
-  #   end
-  # end
-
+  context '#get_assets' do
+    it 'gets the correct asset' do
+      expect(client.asset('usd').first['symbol']).to eq 'USD'
+    end
+    it 'throws an error if asset not found' do
+      expect(->{ client.asset('NOASSET') }).to raise_error Bitshares::Client::Err
+    end
+  end
 end
