@@ -115,11 +115,11 @@ bts.wallet.vote_for_witness('test-account','rnglab',true)
 The market class represents the trading (order book and history) for a given an
 asset-pair - e.g. CNY/BTS. It is instantiated like this:
 ```Ruby
-cny_bts = Bitshares::Market.new('CNY', 'BTS')
+cny_bts = bts.market('CNY', 'BTS')
 ```
 _Note that the BitShares market convention is that quote asset_id > base asset_id. Reversing the symbols in the above example results in the client returning  an 'Invalid Market' error._ An asset's id can be found from the asset hash by using:
 ```Ruby
-cny = Bitshares::Blockchain.new.asset 'CNY' # for example
+cny = bts.asset 'CNY'
 ```
 
 The following methods may then be used without specifying the quote and base assets again, allowing other optional args the client accepts:
