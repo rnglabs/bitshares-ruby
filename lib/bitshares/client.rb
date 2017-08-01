@@ -14,7 +14,7 @@ module Bitshares
     end
 
     def get_assets(*symbols)
-      symbols = [symbols] unless symbols.respond_to? :each
+      symbols = Bitshares::Helpers.to_array(symbols)
       symbols.map(&:upcase!)
       found_assets = lookup_asset_symbols symbols
       raise Err, "Invalid asset: #{symbols}" if found_assets.nil? || found_assets.any?(&:nil?)
@@ -31,6 +31,9 @@ module Bitshares
       Bitshares::Market.new(self,base,quote)
     end
 
+    def account(name)
+      Bitshares::Account.new(self,name)
+    end
   end
 
 end

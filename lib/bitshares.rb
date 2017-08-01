@@ -7,13 +7,18 @@ require 'yaml'
 
 require 'bitshares/rpc'
 require 'bitshares/rpcmagic'
+require 'bitshares/helpers'
 require 'bitshares/client'
 require 'bitshares/wallet'
 require 'bitshares/market'
+require 'bitshares/account'
 
 # stackoverflow.com/questions/6233124/where-to-place-access-config-file-in-gem
 module Bitshares
-  @defaults = {rpc: {username: nil, password: nil, server: 'http://127.0.0.1:8090/'}, wallet: {name: nil, password: nil}}
+  @defaults = {
+      rpc: {username: nil, password: nil, server: 'http://127.0.0.1:8090/'},
+      wallet: {name: nil, password: nil}
+    }
   @config = @defaults
 
   def self.configure(opts = {})
@@ -30,8 +35,8 @@ module Bitshares
     end
 
     # ENV vars override other configs
-    @config[:rpc][:username] = ENV['BITSHARES_ACCOUNT'] || @config[:rpc][:username]
-    @config[:rpc][:password] = ENV['BITSHARES_PASSWORD'] || @config[:rpc][:password]
+    @config[:rpc][:username] = ENV['BTS_RPC_USERNAME'] || @config[:rpc][:username]
+    @config[:rpc][:password] = ENV['BTS_RPC_PASSWORD'] || @config[:rpc][:password]
   end
 
   def self.configure_with(path_to_yaml_file)

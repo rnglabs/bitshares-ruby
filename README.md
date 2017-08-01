@@ -51,7 +51,8 @@ require 'bitshares'
 # _Will throw exception if RPC is not up!_
 bts = Bithares.init
 ```
-Any valid client command can then be issued via a method call with relevant parameters - e.g.
+Any valid client command can then be issued via a method call with relevant
+parameters - e.g.
 
 ```ruby
 witnesses_ids = bts.lookup_witness_accounts('',100).collect(&:last)
@@ -64,6 +65,10 @@ Data is returned as a hash
 ###  Convenience methods
 
 Just open a ruby console and start hacking away.
+
+_Note all gem methods accept names (for accounts and assets) as parameters
+instead of ids. You can still call the RPCAPI methods directly with ids if you
+want to._
 
 ```ruby
 require 'bitshares'
@@ -78,6 +83,7 @@ eth_bts.mid_price
 bts = Bitshares.testnet
 bts.get_chain_id
 ```
+
 ### Detailed usage
 
 #### Blockchain
@@ -87,7 +93,7 @@ See http://docs.bitshares.org/api/blockchain-api.html
 ```Ruby
 bts = Bitshares.openledger
 count = bts.get_block_count
-bts, usd, cny = bts.assets(['bts','usd','cny'])
+a_bts, a_usd, a_cny = bts.assets(['bts','usd','cny'])
 ```
 
 #### Wallet
@@ -114,15 +120,21 @@ bts.wallet.vote_for_witness('test-account','rnglab',true)
 
 The market class represents the trading (order book and history) for a given an
 asset-pair - e.g. CNY/BTS. It is instantiated like this:
+
 ```Ruby
 cny_bts = bts.market('CNY', 'BTS')
 ```
-_Note that the BitShares market convention is that quote asset_id > base asset_id. Reversing the symbols in the above example results in the client returning  an 'Invalid Market' error._ An asset's id can be found from the asset hash by using:
+
+_Note that the BitShares market convention is that quote asset_id > base asset_id.
+Reversing the symbols in the above example results in the client returning  an
+'Invalid Market' error._ An asset's id can be found from the asset hash by using:
+
 ```Ruby
 cny = bts.assets('CNY').first
 ```
 
-The following methods may then be used without specifying the quote and base assets again, allowing other optional arguments the client accepts:
+The following methods may then be used without specifying the quote and base
+assets again, allowing other optional arguments the client accepts:
 
 ```Ruby
 cny_bts.ticker
@@ -135,6 +147,37 @@ cny_bts.trade_history(since=nil,to=nil,limit=100)
 cny_bts.get_24_volume
 
 ```
+
+#### Account
+
+The account class represents any bitshares account. It is instantiated like this:
+
+```Ruby
+account = bts.account('accountname')
+```
+
+_Note you must check for account existance with the valid? method._
+
+The following methods may then be used without specifying the account id/name
+again, allowing other optional arguments the client accepts:
+
+```Ruby
+account.get_workers
+account.get_witness
+account.get_vesting_balances
+account.get_proposed_transactions
+account.get_margin_positions
+account.get_committee_member
+account.references
+account.balances(assets=[])
+```
+
+Method rename convention is:
+
+* If the RPC-API method name starts with get_account_ remove it.
+ie. get_account_references becomes account.references
+* If the RPC-API method ends with _by_account remove it.
+ie. get_witness_by_account becomes account.get_witness
 
 #### Specification & tests
 
