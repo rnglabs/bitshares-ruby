@@ -22,6 +22,10 @@ work.
 
 _@TODO not in rubygems yet_
 
+    $ git clone
+    $ bundle
+    $ bin/console
+
 ## Configuration
 
 RPC server login credentials can be configured with a hash:
