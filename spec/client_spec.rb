@@ -20,16 +20,16 @@ describe Bitshares::Client do
 
   context '#market' do
     it 'returns a Bithares::Market' do
-      expect(client.market('eur','usd').class).to eq Bitshares::Market
+      expect(client.market('TEST','usd').class).to eq Bitshares::Market
     end
   end
 
   context '#get_assets' do
     it 'gets the correct asset' do
-      expect(client.asset('usd').first['symbol']).to eq 'USD'
+      expect(client.asset('usd').first.symbol).to eq 'USD'
     end
     it 'throws an error if asset not found' do
-      expect(->{ client.asset('NOASSET') }).to raise_error Bitshares::Client::Err
+      expect(->{ client.asset('NOASSET') }).to raise_error Bitshares::Asset::Err
     end
   end
 end

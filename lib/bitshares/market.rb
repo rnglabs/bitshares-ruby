@@ -9,14 +9,13 @@ module Bitshares
 
     def initialize(blockchain, base, quote)
       @blockchain = blockchain
-      @base_hash, @quote_hash = @blockchain.get_assets(base, quote)
-      @base, @quote = @base_hash['symbol'], @quote_hash['symbol']
-      valid_market?(@base_hash['id'], @quote_hash['id'])
+      @base, @quote = @blockchain.get_assets(base, quote)
+      valid!
       @multiplier = multiplier
     end
 
     def ticker
-      @blockchain.get_ticker(@base, @quote)
+      @blockchain.get_ticker(@base.symbol, @quote.symbol)
     end
 
     def lowest_ask
@@ -61,12 +60,12 @@ module Bitshares
 
     private
 
-    def valid_market?(quote_id, base_id)
-      raise Err, 'Invalid market; quote ID <= base ID' if quote_id <= base_id
+    def valid!
+      raise Err, 'Invalid market; quote ID <= base ID' if @quote.id <= @base.id
     end
 
     def multiplier
-      @base_hash['precision'].to_f / @quote_hash['precision']
+      @base.precision.to_f / @quote.precision
     end
 
   end

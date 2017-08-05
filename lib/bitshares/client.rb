@@ -2,7 +2,7 @@ module Bitshares
 
   class Client
     class Err < RuntimeError; end
-    attr_reader :wallet
+    attr_reader :wallet, :rpc
 
     include RPCMagic
 
@@ -14,25 +14,18 @@ module Bitshares
     end
 
     def get_assets(*symbols)
-      symbols = Bitshares::Helpers.to_array(symbols)
-      symbols.map(&:upcase!)
-      found_assets = lookup_asset_symbols symbols
-      raise Err, "Invalid asset: #{symbols}" if found_assets.nil? || found_assets.any?(&:nil?)
-      assets_ids = found_assets.collect{|a| a['id']}
-      raise Err, "Invalid asset: #{symbols}" if assets_ids.count != symbols.count
-
-      @rpc.request('get_assets',[assets_ids])
+      Bitshares::Asset.get_many(self, symbols)
     end
     alias_method :get_asset, :get_assets
     alias_method :assets, :get_assets
     alias_method :asset, :get_assets
 
     def market(base, quote)
-      Bitshares::Market.new(self,base,quote)
+      Bitshares::Market.new(self, base, quote)
     end
 
     def account(name)
-      Bitshares::Account.new(self,name)
+      Bitshares::Account.new(self, name)
     end
   end
 

@@ -12,6 +12,7 @@ require 'bitshares/client'
 require 'bitshares/wallet'
 require 'bitshares/market'
 require 'bitshares/account'
+require 'bitshares/asset'
 
 # stackoverflow.com/questions/6233124/where-to-place-access-config-file-in-gem
 module Bitshares

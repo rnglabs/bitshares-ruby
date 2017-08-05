@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Bitshares::Market do
   let!(:client) { Bitshares.testnet }
-  let!(:valid_asset_1) { 'EUR' }
+  let!(:valid_asset_1) { 'TEST' }
   let!(:valid_asset_2) { 'CNY' }
   let(:market) { client.market(valid_asset_1,valid_asset_2) }
   let(:invalid_market) { client.market(valid_asset_2,valid_asset_1) }
@@ -10,8 +10,8 @@ describe Bitshares::Market do
   MULTIPLIER = 10 # for this asset pair
 
   context '#new(quote, base)' do
-    it 'raises Bitshares::Client::Err "Invalid asset" if an invalid asset symbol is used' do
-      expect(->{client.market(valid_asset_1, 'GARBAGE')}).to raise_error Bitshares::Client::Err
+    it 'raises Bitshares::Asset::Err "Invalid asset" if an invalid asset symbol is used' do
+      expect(->{client.market(valid_asset_1, 'GARBAGE')}).to raise_error Bitshares::Asset::Err
     end
 
     it 'raises Bitshares::Market::Err "Invalid market; quote ID <= base ID" if it is' do
@@ -25,13 +25,13 @@ describe Bitshares::Market do
 
   context '#quote' do
     it 'returns the quote asset symbol' do
-      expect(market.quote).to eq valid_asset_2
+      expect(market.quote.symbol).to eq valid_asset_2
     end
   end
 
   context '#base' do
     it 'returns the base asset symbol' do
-      expect(market.base).to eq valid_asset_1
+      expect(market.base.symbol).to eq valid_asset_1
     end
   end
 
