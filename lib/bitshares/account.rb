@@ -3,19 +3,17 @@ module Bitshares
   class Account
     class Err < RuntimeError; end
 
-    attr_reader :account
-
     def initialize(blockchain, name)
       @blockchain = blockchain
       @account = @blockchain.lookup_account_names([name]).first
     end
 
-    def valid?
-      !@account.nil?
+    def method_missing(m, *args)
+      @account[m.to_s]
     end
 
-    def id
-      @account['id']
+    def valid?
+      !@account.nil?
     end
 
     def get_workers
@@ -34,8 +32,11 @@ module Bitshares
       @blockchain.get_proposed_transactions(id)
     end
 
+    # collateral / (debt * 1.75) = call_price
     def get_margin_positions
-      @blockchain.get_margin_positions(id)
+      @blockchain.get_margin_positions(id).collect do |mp|
+        Bitshares::MarginPosition.new(@blockchain, mp)
+      end
     end
 
     def get_committee_member

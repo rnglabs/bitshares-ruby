@@ -32,4 +32,11 @@ describe Bitshares::Client do
       expect(->{ client.asset('NOASSET') }).to raise_error Bitshares::Asset::Err
     end
   end
+
+  context '#account' do
+    # This is hardcoded to testnet examples
+    it 'gets the correct account' do
+      expect(client.account('witness-account').id).to eq '1.2.1'
+    end
+  end
 end

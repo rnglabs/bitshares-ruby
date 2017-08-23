@@ -11,7 +11,6 @@ module Bitshares
       @blockchain = blockchain
       @base, @quote = @blockchain.get_assets(base, quote)
       valid!
-      @multiplier = multiplier
     end
 
     def ticker
@@ -51,6 +50,10 @@ module Bitshares
       @blockchain.get_24_volume(@base, @quote)
     end
 
+    def settlement_price
+      @base.settlement_price / @quote.settlement_price
+    end
+
     # @TODO GRAPHENE PORT
     # THEESE METHODS NEED PORTING:
     # - blockchain_market_list_shorts
@@ -62,10 +65,6 @@ module Bitshares
 
     def valid!
       raise Err, 'Invalid market; quote ID <= base ID' if @quote.id <= @base.id
-    end
-
-    def multiplier
-      @base.precision.to_f / @quote.precision
     end
 
   end
