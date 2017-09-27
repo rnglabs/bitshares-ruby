@@ -31,7 +31,7 @@ module Bitshares
     end
 
     def order_book(limit=50)
-      @blockchain.get_order_book(@base, @quote, limit)
+      @blockchain.get_order_book(@base.id, @quote.id, limit)
     end
 
     def limit_orders(limit=50)
