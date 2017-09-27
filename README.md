@@ -195,7 +195,7 @@ _@TODO test wallet methods in testnet._
 
 ## Contributing
 
-Bug reports, pull requests (and feature requests) are welcome on GitHub at https://github.com/MatzFan/bitshares-ruby.
+Bug reports, pull requests (and feature requests) are welcome on GitHub at https://github.com/rnglabs/bitshares-ruby.
 
 ## License
 
