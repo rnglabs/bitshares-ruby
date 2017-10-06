@@ -17,6 +17,13 @@ describe Bitshares::Account do
     it 'gets the correct account' do
       expect(subject.id).to eq "1.2.1"
     end
+
+    it 'gets it full' do
+      full = subject.get_full
+      expect(full).to_not be_nil
+      expect(full['account']).to_not be_nil
+      expect(full['account']['name']).to eq subject.name
+    end
   end
 
 end

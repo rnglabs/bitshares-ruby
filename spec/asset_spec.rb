@@ -1,8 +1,8 @@
 require 'spec_helper'
 
-describe Bitshares::Market do
+describe Bitshares::Asset do
   let!(:client) { Bitshares.testnet }
-  let!(:valid_asset_1) { 'EUR' }
+  let!(:valid_asset_1) { 'PARITY' }
   let(:bts) { Bitshares::Asset.new(client, 'TEST') }
   let(:asset) { Bitshares::Asset.new(client, valid_asset_1) }
 
@@ -26,4 +26,22 @@ describe Bitshares::Market do
     end
   end
 
+  context 'get_call_orders' do
+    it 'returns a list of callorders' do
+      call_ords = asset.get_call_orders
+      expect(call_ords.class).to eq Array
+      if call_ords.count > 0
+        expect(call_ords.first['id'][0..3]).to eq '1.8.'
+        expect(call_ords.first['collateral']).to be > 0
+        expect(call_ords.first['debt']).to be > 0
+        expect(call_ords.first['call_price']['base']['amount']).to be > 0
+      end
+    end
+  end
+
+  context 'get_settle_orders' do
+    it 'returns a list' do
+      expect(bts.get_settle_orders.class).to eq Array
+    end
+  end
 end

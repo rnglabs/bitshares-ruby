@@ -4,7 +4,7 @@ describe Bitshares::Client do
 
   let(:client) { Bitshares.testnet }
 
-  # context 'configuration'
+  # @TODO context 'configuration'
 
   context '#testnet' do
     it 'returns a Bitshares::Client' do

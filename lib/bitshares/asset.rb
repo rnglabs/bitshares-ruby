@@ -85,5 +85,13 @@ module Bitshares
     def dynamic_asset_data
       @blockchain.get_objects([dynamic_asset_data_id]).first
     end
+
+    def get_call_orders(limit=10)
+      @blockchain.get_call_orders(id, limit)
+    end
+
+    def get_settle_orders(limit=10)
+      @blockchain.get_settle_orders(id, limit)
+    end
   end
 end

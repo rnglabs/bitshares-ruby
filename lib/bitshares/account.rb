@@ -16,6 +16,10 @@ module Bitshares
       !@account.nil?
     end
 
+    def get_full
+      @blockchain.get_full_accounts([id], false).first.last
+    end
+
     def get_workers
       @blockchain.get_workers_by_account(id)
     end
