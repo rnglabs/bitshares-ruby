@@ -6,8 +6,8 @@ require 'bitshares/version'
 Gem::Specification.new do |s|
   s.name          = 'bitshares'
   s.version       = Bitshares::VERSION
-  s.authors       = ['Bruce Steedman']
-  s.email         = ['bruce.steedman@gmail.com']
+  s.authors       = ['Bruce Steedman', 'aza']
+  s.email         = ['bruce.steedman@gmail.com', 'aza@lainventoria.com.ar']
 
   s.summary       = %q{Ruby API for BitShares CLI client}
   s.description   = %q{Ruby API for BitShares CLI client}

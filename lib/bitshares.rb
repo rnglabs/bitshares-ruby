@@ -58,8 +58,13 @@ module Bitshares
     @config
   end
 
+  def self.rnglab
+    configure(rpc: { server: "https://dex.rnglab.org/" })
+    init
+  end
+
   def self.openledger
-    configure(rpc: { server: "https://bitshares.openledger.info/ws" })
+    configure(rpc: { server: "https://bitshares.openledger.info/" })
     init
   end
 
